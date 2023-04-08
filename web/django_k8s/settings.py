@@ -14,7 +14,11 @@ SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = str(os.environ.get('DEBUG')) == "1"
 
+
+ENV_ALLOWED_HOST = os.environ.get("ENV_ALLOWED_HOST")
 ALLOWED_HOSTS = []
+if ENV_ALLOWED_HOST:
+    ALLOWED_HOSTS = [ENV_ALLOWED_HOST]
 
 
 # Application definition
@@ -69,6 +73,9 @@ DB_PASSWORD = os.environ.get("POSTGRES_PASSWORD")
 DB_HOST = os.environ.get("POSTGRES_HOST")
 DB_PORT = os.environ.get("POSTGRES_PORT")
 
+# SSL
+DB_IGNORE_SSL=os.environ.get("DB_IGNORE_SSL")=="true"
+
 DB_READY = all([DB_NAME,DB_USERNAME,DB_PASSWORD,DB_PORT,DB_HOST])
 
 POSTGRES_READY = str(os.environ.get('POSTGRES_READY')) == "1"
@@ -83,7 +90,11 @@ if DB_READY and POSTGRES_READY:
         'PORT': DB_PORT,
         'PASSWORD': DB_PASSWORD
     }
-}
+}   
+    if not DB_IGNORE_SSL:
+        DATABASES['default']['OPTIONS'] = {
+            "sslmode":"require"
+        }
 
     # print(DATABASES)
 
